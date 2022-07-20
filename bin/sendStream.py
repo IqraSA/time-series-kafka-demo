@@ -15,9 +15,9 @@ import socket
 
 def acked(err, msg):
     if err is not None:
-        print("Failed to deliver message: %s: %s" % (str(msg.value()), str(err)))
+        print(f"Failed to deliver message: {str(msg.value())}: {str(err)}")
     else:
-        print("Message produced: %s" % (str(msg.value())))
+        print(f"Message produced: {str(msg.value())}")
 
 
 def main():
@@ -49,13 +49,10 @@ def main():
                 line1 = next(rdr, None)
                 timestamp, value = line1[0], float(line1[1])
                 # Convert csv columns to key value pair
-                result = {}
-                result[timestamp] = value
+                result = {timestamp: value}
                 # Convert dict to json as message format
                 jresult = json.dumps(result)
                 firstline = False
-
-                producer.produce(topic, key=p_key, value=jresult, callback=acked)
 
             else:
                 line = next(rdr, None)
@@ -64,11 +61,10 @@ def main():
                 diff = ((d2 - d1).total_seconds())/args.speed
                 time.sleep(diff)
                 timestamp, value = line[0], float(line[1])
-                result = {}
-                result[timestamp] = value
+                result = {timestamp: value}
                 jresult = json.dumps(result)
 
-                producer.produce(topic, key=p_key, value=jresult, callback=acked)
+            producer.produce(topic, key=p_key, value=jresult, callback=acked)
 
             producer.flush()
 
